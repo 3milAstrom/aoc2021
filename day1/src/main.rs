@@ -1,3 +1,4 @@
+use core::num;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -27,11 +28,10 @@ fn read_input() -> Vec<i32> {
     }
 }
 
-fn main() {
+fn part1() {
     let numbers = read_input();
     // println!("{:?}", numbers);
     let first_depth = numbers[0];
-
     let result = numbers.iter().skip(1).fold(DepthCounter {increases:0 , last_depth: first_depth}, |acc, &x | {
         if x > acc.last_depth {
             DepthCounter {last_depth: x, increases: acc.increases + 1}
@@ -40,5 +40,29 @@ fn main() {
         }
     });
 
-    println!("Number of increasing {}", result.increases)
+    println!("Number of increasing part 1 {}", result.increases)
+}
+
+fn part2() {
+    let numbers = read_input();
+    let index_vector = (0..numbers.len()).collect::<Vec<_>>();
+    let first_depth = numbers[0] + numbers[1] + numbers[2];
+    let result = index_vector.iter().skip(1).fold(DepthCounter {increases: 0, last_depth: first_depth}, |acc, &index | {
+        if index + 2 > numbers.len() - 1 {
+            return acc;
+        }
+        let sum = numbers[index] + numbers[index + 1] + numbers[index + 2];
+        if sum > acc.last_depth {
+            DepthCounter {increases: acc.increases + 1, last_depth: sum}
+        } else {
+            DepthCounter { last_depth: sum, ..acc}
+        }
+    });
+
+    println!("Number of increasing part 2 {}", result.increases)
+}
+
+fn main() {
+    part1();
+    part2();
 }
