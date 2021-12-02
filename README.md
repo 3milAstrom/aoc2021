@@ -1,2 +1,2 @@
-# aot2021
-aot
+# aoc2021
+aoc
