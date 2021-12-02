@@ -14,10 +14,17 @@ struct Instruction {
     value: i32
 }
 
-struct Position {
+struct SimplePosition {
     x: i32,
     depth: i32
 }
+
+struct Position {
+    x: i32,
+    depth: i32,
+    aim: i32,
+}
+
 
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
@@ -34,9 +41,9 @@ fn read_input() -> Vec<Instruction> {
                 let split = ip.split(" ").collect::<Vec<&str>>();
                 let number = split[1].parse::<i32>().unwrap();
                 match split[0] {
-                    "forward" => vec.push(Instruction {command: Commands::Forward, value: split[1].parse::<i32>().unwrap()}),
-                    "down" => vec.push(Instruction {command: Commands::Down, value: split[1].parse::<i32>().unwrap()}),
-                    "up" => vec.push(Instruction {command: Commands::Up, value: split[1].parse::<i32>().unwrap()}),
+                    "forward" => vec.push(Instruction {command: Commands::Forward, value: number}),
+                    "down" => vec.push(Instruction {command: Commands::Down, value: number}),
+                    "up" => vec.push(Instruction {command: Commands::Up, value: -1 * number}),
                     _ => panic!("Strange command")
                 }
             }
@@ -49,11 +56,25 @@ fn read_input() -> Vec<Instruction> {
 
 fn part1() {
     let commands = read_input();
-    let result = commands.iter().fold(Position {x: 0, depth: 0}, |acc, instruction | {
+    let result = commands.iter().fold(SimplePosition {x: 0, depth: 0}, |acc, instruction | {
         match instruction.command {
-            Commands::Up => Position {depth: acc.depth - &instruction.value, ..acc},
-            Commands::Down => Position {depth: acc.depth + &instruction.value, ..acc},
-            Commands::Forward => Position {x: acc.x + &instruction.value, ..acc},
+            Commands::Down | Commands::Up => SimplePosition {depth: acc.depth + &instruction.value, ..acc},
+            Commands::Forward => SimplePosition {x: acc.x + &instruction.value, ..acc},
+        }
+    });
+
+    println!("Current depth: {}, Current horizontal: {}, multiple:  {}", result.depth, result.x, result.depth*result.x)
+}
+
+fn part2() {
+    let commands = read_input();
+    let result = commands.iter().fold(Position {x: 0, depth: 0, aim: 0}, |acc, instruction | {
+        match instruction.command {
+            Commands::Down | Commands::Up => Position {aim: acc.aim + &instruction.value, ..acc},
+            Commands::Forward => {
+                let new_depth =  acc.depth + (&instruction.value * acc.aim);
+                Position {x: acc.x + &instruction.value, depth: new_depth,  ..acc}
+            }
         }
     });
 
@@ -61,6 +82,6 @@ fn part1() {
 }
 
 fn main() {
-    part1();
-    println!("Hello, world!");
+    part1(); //2120749
+    part2(); //2138382217
 }
