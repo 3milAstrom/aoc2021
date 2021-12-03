@@ -27,6 +27,11 @@ fn read_input() -> Vec<Vec<char>> {
     }
 }
 
+fn char_vec_to_dec(chars: Vec<char>) -> isize {
+    let binary_string = String::from_iter(chars);
+    isize::from_str_radix(&*&binary_string, 2).unwrap()
+}
+
 fn rate(values: Vec<Vec<char>>, y:usize) -> (usize, usize) {
     let (zero, one): (Vec<char>, Vec<char>) = (0..values.len()).map(|x| {
         values[x][y]
@@ -36,7 +41,16 @@ fn rate(values: Vec<Vec<char>>, y:usize) -> (usize, usize) {
     (zero.len(),one.len())
 }
 
-fn part1() -> Results {
+fn filter_bits(values: Vec<Vec<char>>, zero: usize, one: usize, bigger: char, smaller: char, y: usize) -> Vec<Vec<char>> {
+    let filter_bit = |x: Vec<Vec<char>>,bit: char| -> Vec<Vec<char>> {x.into_iter().filter(|x| {
+        x[y] == bit
+    }).collect::<Vec<Vec<char>>>()};
+
+    let tmp = values.clone();
+    if zero > one { filter_bit(tmp, bigger) } else { filter_bit(tmp, smaller) }
+}
+
+fn part1() {
     let bits = read_input();
     let bit_length = bits[0].len();
     let results: Results = (0..bit_length).fold(Results {gamma: Vec::new(), epsilon: Vec::new()}, |mut acc, y| {
@@ -50,28 +64,12 @@ fn part1() -> Results {
         }
         acc
     });
-    let gamma_string = String::from_iter(&results.gamma);
-    let epsilon_string = String::from_iter(&results.epsilon);
-    let gamma = isize::from_str_radix(&*&gamma_string, 2).unwrap();
-    let epsilon = isize::from_str_radix(&*&epsilon_string, 2).unwrap();
+
+    let gamma = char_vec_to_dec(results.gamma.clone());
+    let epsilon = char_vec_to_dec(results.epsilon.clone());
     println!("Gamma {}", gamma);
     println!("Epsilon {}", epsilon);
     println!("Gamma * Epsilon {}", gamma * epsilon);
-
-    results
-}
-
-fn filter(values: Vec<Vec<char>>, zero: usize, one: usize, bigger: char, smaller: char, y: usize) -> Vec<Vec<char>> {
-    let tmp = values.clone();
-    if zero > one {
-        tmp.into_iter().filter(|x| {
-            x[y] == bigger
-        }).collect::<Vec<Vec<char>>>()
-    } else {
-        tmp.into_iter().filter(|x| {
-        x[y] == smaller
-        }).collect::<Vec<Vec<char>>>()
-    }
 }
 
 fn part2() {
@@ -80,19 +78,17 @@ fn part2() {
     let oxygen_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
         if acc.len() == 1 { return acc }
         let (zero,one) = rate(acc.clone(), y);
-        filter(acc, zero, one, '0', '1', y)
+        filter_bits(acc, zero, one, '0', '1', y)
     });
 
     let co2_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
         if acc.len() == 1 { return acc }
         let (zero,one) = rate(acc.clone(), y);
-        filter(acc, zero, one, '1', '0', y)
+        filter_bits(acc, zero, one, '1', '0', y)
     });
 
-    let oxy_string = String::from_iter(&oxygen_vec[0]);
-    let co2_string = String::from_iter(&co2_vec[0]);
-    let oxygen = isize::from_str_radix(&*&oxy_string, 2).unwrap();
-    let co2 = isize::from_str_radix(&*&co2_string, 2).unwrap();
+    let oxygen = char_vec_to_dec(oxygen_vec[0].clone());
+    let co2 = char_vec_to_dec(co2_vec[0].clone());
 
     println!("Oxygen {}, co2 {}, multiple {}", oxygen, co2, oxygen * co2)
 }
