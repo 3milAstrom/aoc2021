@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
-use std::cmp;
 
 struct Results {
     gamma: Vec<char>,
@@ -27,7 +26,7 @@ fn read_input() -> Vec<Vec<char>> {
         panic!("Could not read file")
     }
 }
-fn part1() {
+fn part1() -> Results {
     let bits = read_input();
     let bits_length = bits.len();
     let bit_length = bits[0].len();
@@ -37,7 +36,10 @@ fn part1() {
         }).partition(|&c| {
             c == '0'
         });
-        if zero.len() > one.len() {
+        if zero.len() == one.len(){
+            acc.gamma.push('1');
+            acc.epsilon.push('0');
+        } else if zero.len() > one.len() {
             acc.gamma.push('0');
             acc.epsilon.push('1');
         } else {
@@ -46,15 +48,72 @@ fn part1() {
         }
         acc
     });
-    let gamma_string = String::from_iter(results.gamma);
-    let epsilon_string = String::from_iter(results.epsilon);
+    let gamma_string = String::from_iter(&results.gamma);
+    let epsilon_string = String::from_iter(&results.epsilon);
     let gamma = isize::from_str_radix(&*&gamma_string, 2).unwrap();
     let epsilon = isize::from_str_radix(&*&epsilon_string, 2).unwrap();
     println!("Gamma {}", gamma);
     println!("Epsilon {}", epsilon);
-    println!("Gamma * Epsilon {}", gamma * epsilon)
+    println!("Gamma * Epsilon {}", gamma * epsilon);
 
+    results
 }
+
+fn part2() {
+    let bits = read_input();
+    let bits_length = bits.len();
+    let bit_length = bits[0].len();
+    let oxygen_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
+        if acc.len() == 1 {
+            return acc;
+        }
+        let (zero, one): (Vec<char>, Vec<char>) = (0..acc.len()).map(|x| {
+            acc[x][y]
+        }).partition(|&c| {
+            c == '0'
+        });
+        let tmp = acc.clone();
+        if zero.len() > one.len() {
+            tmp.into_iter().filter(|x| {
+                x[y] == '0'
+            }).collect::<Vec<Vec<char>>>()
+        } else {
+            tmp.into_iter().filter(|x| {
+                x[y] == '1'
+            }).collect::<Vec<Vec<char>>>()
+        }
+    });
+
+    let co2_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
+        if acc.len() == 1 {
+            return acc;
+        }
+        let (zero, one): (Vec<char>, Vec<char>) = (0..acc.len()).map(|x| {
+            acc[x][y]
+        }).partition(|&c| {
+            c == '0'
+        });
+        let tmp = acc.clone();
+        if zero.len() > one.len() {
+            tmp.into_iter().filter(|x| {
+                x[y] == '1'
+            }).collect::<Vec<Vec<char>>>()
+        } else {
+            tmp.into_iter().filter(|x| {
+                x[y] == '0'
+            }).collect::<Vec<Vec<char>>>()
+        }
+    });
+
+    let oxy_string = String::from_iter(&oxygen_vec[0]);
+    let co2_string = String::from_iter(&co2_vec[0]);
+    let oxygen = isize::from_str_radix(&*&oxy_string, 2).unwrap();
+    let co2 = isize::from_str_radix(&*&co2_string, 2).unwrap();
+
+    println!("Oxygen {}, co2 {}, multiple {}", oxygen, co2, oxygen * co2)
+}
+
 fn main() {
     part1();
+    part2();
 }
