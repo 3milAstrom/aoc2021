@@ -61,7 +61,6 @@ fn part1() -> Results {
 
 fn part2() {
     let bits = read_input();
-    let bits_length = bits.len();
     let bit_length = bits[0].len();
     let oxygen_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
         if acc.len() == 1 {
