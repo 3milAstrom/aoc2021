@@ -26,20 +26,22 @@ fn read_input() -> Vec<Vec<char>> {
         panic!("Could not read file")
     }
 }
+
+fn rate(values: Vec<Vec<char>>, y:usize) -> (usize, usize) {
+    let (zero, one): (Vec<char>, Vec<char>) = (0..values.len()).map(|x| {
+        values[x][y]
+    }).partition(|&c| {
+        c == '0'
+    });
+    (zero.len(),one.len())
+}
+
 fn part1() -> Results {
     let bits = read_input();
-    let bits_length = bits.len();
     let bit_length = bits[0].len();
     let results: Results = (0..bit_length).fold(Results {gamma: Vec::new(), epsilon: Vec::new()}, |mut acc, y| {
-        let (zero, one): (Vec<char>, Vec<char>) = (0..bits_length).map(|x| {
-            bits[x][y]
-        }).partition(|&c| {
-            c == '0'
-        });
-        if zero.len() == one.len(){
-            acc.gamma.push('1');
-            acc.epsilon.push('0');
-        } else if zero.len() > one.len() {
+        let (zero,one) = rate(bits.clone(), y);
+        if zero > one {
             acc.gamma.push('0');
             acc.epsilon.push('1');
         } else {
@@ -66,13 +68,9 @@ fn part2() {
         if acc.len() == 1 {
             return acc;
         }
-        let (zero, one): (Vec<char>, Vec<char>) = (0..acc.len()).map(|x| {
-            acc[x][y]
-        }).partition(|&c| {
-            c == '0'
-        });
+        let (zero,one) = rate(acc.clone(), y);
         let tmp = acc.clone();
-        if zero.len() > one.len() {
+        if zero > one {
             tmp.into_iter().filter(|x| {
                 x[y] == '0'
             }).collect::<Vec<Vec<char>>>()
@@ -87,13 +85,9 @@ fn part2() {
         if acc.len() == 1 {
             return acc;
         }
-        let (zero, one): (Vec<char>, Vec<char>) = (0..acc.len()).map(|x| {
-            acc[x][y]
-        }).partition(|&c| {
-            c == '0'
-        });
+        let (zero,one) = rate(acc.clone(), y);
         let tmp = acc.clone();
-        if zero.len() > one.len() {
+        if zero > one {
             tmp.into_iter().filter(|x| {
                 x[y] == '1'
             }).collect::<Vec<Vec<char>>>()
