@@ -61,41 +61,32 @@ fn part1() -> Results {
     results
 }
 
+fn filter(values: Vec<Vec<char>>, zero: usize, one: usize, bigger: char, smaller: char, y: usize) -> Vec<Vec<char>> {
+    let tmp = values.clone();
+    if zero > one {
+        tmp.into_iter().filter(|x| {
+            x[y] == bigger
+        }).collect::<Vec<Vec<char>>>()
+    } else {
+        tmp.into_iter().filter(|x| {
+        x[y] == smaller
+        }).collect::<Vec<Vec<char>>>()
+    }
+}
+
 fn part2() {
     let bits = read_input();
     let bit_length = bits[0].len();
     let oxygen_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
-        if acc.len() == 1 {
-            return acc;
-        }
+        if acc.len() == 1 { return acc }
         let (zero,one) = rate(acc.clone(), y);
-        let tmp = acc.clone();
-        if zero > one {
-            tmp.into_iter().filter(|x| {
-                x[y] == '0'
-            }).collect::<Vec<Vec<char>>>()
-        } else {
-            tmp.into_iter().filter(|x| {
-                x[y] == '1'
-            }).collect::<Vec<Vec<char>>>()
-        }
+        filter(acc, zero, one, '0', '1', y)
     });
 
     let co2_vec: Vec<Vec<char>> = (0..bit_length).fold(bits.clone(), |acc, y| {
-        if acc.len() == 1 {
-            return acc;
-        }
+        if acc.len() == 1 { return acc }
         let (zero,one) = rate(acc.clone(), y);
-        let tmp = acc.clone();
-        if zero > one {
-            tmp.into_iter().filter(|x| {
-                x[y] == '1'
-            }).collect::<Vec<Vec<char>>>()
-        } else {
-            tmp.into_iter().filter(|x| {
-                x[y] == '0'
-            }).collect::<Vec<Vec<char>>>()
-        }
+        filter(acc, zero, one, '1', '0', y)
     });
 
     let oxy_string = String::from_iter(&oxygen_vec[0]);
